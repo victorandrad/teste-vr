@@ -1,0 +1,46 @@
+
+  \{^_^}/ hi!
+
+  Loading server.json
+  Oops, server.json doesn't seem to exist
+  Creating server.json with some default data
+
+  Done
+
+  Resources
+  http://localhost:3333/posts
+  http://localhost:3333/comments
+  http://localhost:3333/profile
+
+  Home
+  http://localhost:3333
+
+  Type s + enter at any time to create a snapshot of the database
+  Watching...
+
+[0mGET /%PUBLIC_URL%/manifest.json [33m404[0m 754.761 ms - 2[0m
+[0mGET /%PUBLIC_URL%/favicon.ico [33m404[0m 755.335 ms - 2[0m
+[0mGET /docs [33m404[0m 753.027 ms - 2[0m
+
+  \{^_^}/ hi!
+
+  Loading misocial.json
+  Done
+
+  Resources
+  http://localhost:3333/docs
+
+  Home
+  http://localhost:3333
+
+  Type s + enter at any time to create a snapshot of the database
+  Watching...
+
+Cannot bind to the port 3333. Please specify another port number either through --port argument or through the json-server.json configuration file
+[0mGET /docs [33m404[0m 752.462 ms - 2[0m
+[0mGET /%PUBLIC_URL%/manifest.json [33m404[0m 759.836 ms - 2[0m
+[0mGET /%PUBLIC_URL%/manifest.json [33m404[0m 753.625 ms - 2[0m
+[0mGET /docs [33m404[0m 757.671 ms - 2[0m
+[0mGET /docs [33m404[0m 756.897 ms - 2[0m
+[0mGET /docs [33m404[0m 755.464 ms - 2[0m
+[0mGET /docs [33m404[0m 769.003 ms - 2[0m
