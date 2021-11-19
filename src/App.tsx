@@ -14,7 +14,8 @@ function App() {
   const [item, setItem] = useState<any>({});
   const [loading, setLoading] = useState(false);
   const [modalView, setModalView] = useState(false);
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch] = useState<string>();
+  const [refreshList, setRefreshList] = useState(false);
 
   // Inicia os formulários
   const [formAdd] = Form.useForm();
@@ -40,6 +41,7 @@ function App() {
       sucesso('Registro atualizado com sucesso');
       setModalEdit(false);
       setLoading(false);
+      setRefreshList(true);
     })
   };
 
@@ -52,6 +54,7 @@ function App() {
       setModalAdd(false);
       setLoading(false);
       formAdd.resetFields();
+      setRefreshList(true);
     })
   };
 
@@ -63,17 +66,17 @@ function App() {
   useEffect(() => {
     let params = {};
 
-    if (search.length > 0) {
+    if (search) {
       params = {
         q: search
       }
     }
     api.get('/docs', { params }).then((response: any) => {
       let { data } = response;
-
+      setRefreshList(false);
       setLista(data);
     });
-  }, [lista, search]);
+  }, [refreshList, search]);
 
   // Modal para deletar registro
   function confirm(item: any) {
@@ -88,6 +91,7 @@ function App() {
 
         api.delete(`/docs/${id}`).then(() => {
           setLista(lista.filter((filterItem: any) => filterItem.id !== id));
+          setRefreshList(true);
           sucesso('Item deletado com sucesso.');
         });
       }
