@@ -67,7 +67,7 @@ function App() {
         &nbsp;
         &nbsp;
 
-        {/* Lista todos os registros com paginação */}
+        {/* Lista todos os pokemons com paginação */}
         <List
           grid={{
             gutter: 32,
