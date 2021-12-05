@@ -25,7 +25,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "e2e": "react-scripts test --testPathPattern=.*e2e.test.js$"
+    "e2e": "react-scripts test --testPathPattern=.*e2e.test.js$",
+    "gh-pages": "yarn build && ./node_modules/.bin/gh-pages -d ./build"
   },
   "eslintConfig": {
     "extends": [
@@ -44,5 +45,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^3.2.3"
   }
 }
