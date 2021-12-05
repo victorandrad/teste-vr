@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/teste-vr/static/css/main.60c290d2.chunk.css",
-    "main.js": "/teste-vr/static/js/main.aca8739b.chunk.js",
-    "main.js.map": "/teste-vr/static/js/main.aca8739b.chunk.js.map",
+    "main.js": "/teste-vr/static/js/main.7a581201.chunk.js",
+    "main.js.map": "/teste-vr/static/js/main.7a581201.chunk.js.map",
     "runtime-main.js": "/teste-vr/static/js/runtime-main.ff27f131.js",
     "runtime-main.js.map": "/teste-vr/static/js/runtime-main.ff27f131.js.map",
     "static/css/2.54a01395.chunk.css": "/teste-vr/static/css/2.54a01395.chunk.css",
@@ -18,6 +18,6 @@
     "static/css/2.54a01395.chunk.css",
     "static/js/2.09466116.chunk.js",
     "static/css/main.60c290d2.chunk.css",
-    "static/js/main.aca8739b.chunk.js"
+    "static/js/main.7a581201.chunk.js"
   ]
 }
