@@ -18,7 +18,7 @@ function App() {
   // Ação de pesquisa de registro
   const onSearch = (value: string) => {
     if (value) {
-      detailsPokemon(value);
+      detailsPokemon(value.toLowerCase().replace(' ', '-'));
     }
   };
 
