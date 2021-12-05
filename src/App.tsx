@@ -1,108 +1,59 @@
-import { ExclamationCircleOutlined, FileAddOutlined } from '@ant-design/icons';
-import { Button, Form, Input, List, Modal, Spin } from 'antd';
+import { Card, Descriptions, Divider, Image, Input, List, Modal, Progress, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import './App.scss';
 import { api } from './service/api';
 const { Search } = Input;
-
+const { Meta } = Card;
 
 function App() {
   // Define variaveis de estado
   const [lista, setLista] = useState<any>([]);
-  const [modalEdit, setModalEdit] = useState(false);
-  const [modalAdd, setModalAdd] = useState(false);
-  const [item, setItem] = useState<any>({});
-  const [loading, setLoading] = useState(false);
   const [modalView, setModalView] = useState(false);
-  const [search, setSearch] = useState<string>();
   const [refreshList, setRefreshList] = useState(false);
-
-  // Inicia os formulários
-  const [formAdd] = Form.useForm();
-  const [formEdit] = Form.useForm();
-
-  // Define layout de formulário
-  const layout = {
-    labelCol: { span: 6 },
-    wrapperCol: { span: 16 },
-  };
-
-  // Mensagem de erro de formulário
-  const validateMessages = {
-    required: 'O campo ${label} é obrigatório!',
-  };
-
-  // Ação de edição de registro
-  const onFinishEdit = (values: any) => {
-    let { id } = item;
-    setLoading(true);
-
-    api.put(`/docs/${id}`, values).then(() => {
-      sucesso('Registro atualizado com sucesso');
-      setModalEdit(false);
-      setLoading(false);
-      setRefreshList(true);
-    })
-  };
-
-  // Ação de novo de registro
-  const onFinishAdd = (values: any) => {
-    setLoading(true);
-
-    api.post(`/docs`, values).then(() => {
-      sucesso('Registro adicionado com sucesso');
-      setModalAdd(false);
-      setLoading(false);
-      formAdd.resetFields();
-      setRefreshList(true);
-    })
-  };
+  const [count, setCount] = useState(0);
+  const [limit,] = useState(35);
+  const [offset, setOffset] = useState(0);
+  const [pokemonDetail, setPokemonDetail] = useState<any>();
 
   // Ação de pesquisa de registro
   const onSearch = (value: string) => {
-    setSearch(value);
+    if (value) {
+      detailsPokemon(value);
+    }
   };
 
   useEffect(() => {
-    let params = {};
+    let params = { offset, limit };
 
-    if (search) {
-      params = {
-        q: search
-      }
-    }
-    api.get('/docs', { params }).then((response: any) => {
+    api.get('/pokemon', { params }).then((response: any) => {
       let { data } = response;
+      let { results, count } = data;
+
+      setCount(count);
       setRefreshList(false);
-      setLista(data);
+      setLista(results);
     });
-  }, [refreshList, search]);
+  }, [refreshList, offset, limit]);
 
-  // Modal para deletar registro
-  function confirm(item: any) {
-    Modal.confirm({
-      title: 'Aviso',
-      icon: <ExclamationCircleOutlined />,
-      content: 'Deseja mesmo deletar esse registro?',
-      okText: 'Sim',
-      cancelText: 'Não',
-      onOk: () => {
-        let { id } = item;
+  const getPokemonId = (urlPokemon: string) => {
+    return (urlPokemon.split('/pokemon/')[1]).replace('/', '');
+  }
 
-        api.delete(`/docs/${id}`).then(() => {
-          setLista(lista.filter((filterItem: any) => filterItem.id !== id));
-          setRefreshList(true);
-          sucesso('Item deletado com sucesso.');
-        });
-      }
+  const detailsPokemon = (pokemonId: string) => {
+    api.get(`/pokemon/${pokemonId}`).then((response: any) => {
+      setModalView(true);
+      const { data } = response;
+
+      setPokemonDetail(data);
+    }).catch(() => {
+      error();
     });
   }
 
-  // Modal de sucesso de uma ação
-  function sucesso(message: string) {
-    Modal.success({
-      title: 'Aviso',
-      content: message,
+  const error = () => {
+    Modal.error({
+      title: 'Atenção',
+      content: 'O Pokémon digitado não existe. Tente digitar o nome igual do card da Pokedex.',
     });
   }
 
@@ -111,157 +62,132 @@ function App() {
     <>
       <div className="container-lista">
         {/* Caixa de pesquisa */}
-        <Search placeholder="Pesquisar registro" allowClear onSearch={onSearch} style={{ width: 600 }} />
+        <Search className="pokemon-search" placeholder="Pesquisar pokemon pelo nome" allowClear onSearch={onSearch} style={{ width: '100%' }} />
         &nbsp;
         &nbsp;
         &nbsp;
-        {/* Botão para adicionar novo registro */}
-        <Button type="primary" onClick={() => setModalAdd(true)} icon={<FileAddOutlined />}>
-          Adicionar
-        </Button>
 
         {/* Lista todos os registros com paginação */}
         <List
+          grid={{
+            gutter: 32,
+            xs: 1,
+            sm: 2,
+            md: 4,
+            lg: 4,
+            xl: 6,
+          }}
           className="lista"
           loading={lista.length === 0}
           itemLayout="horizontal"
           dataSource={lista}
           pagination={{
+            defaultCurrent: 1,
             showSizeChanger: false,
-            pageSize: 15
+            total: count,
+            pageSize: limit,
+            onChange: (page) => {
+              setOffset((page - 1) * limit);
+            }
           }}
           renderItem={(item: any) => (
-            <List.Item
-              actions={[<a onClick={() => { setModalView(true); setItem(item); }}>Detalhes</a>, <a onClick={() => { setModalEdit(true); setItem(item); formEdit.setFieldsValue(item); }}>Editar</a>, <a onClick={() => confirm(item)}>Deletar</a>]}
-            >
-              <List.Item.Meta
-                title={item.siglauf}
-              />
+            <List.Item>
+              <Card
+                hoverable
+                className={`pokemon-${item.name}`}
+                style={{ width: 240 }}
+                onClick={() => detailsPokemon(getPokemonId(item.url))}
+                cover={<img alt={item.name} src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${getPokemonId(item.url)}.png`} onError={(e: any) => e.target.src = './img/pokeball.png'} />}
+              >
+                <Meta title={item.name} />
+              </Card>
             </List.Item>
           )}
         />
       </div>
 
-      {/* Modal de novo registro */}
+      {/* Modal de vizualização de pokemon */}
       <Modal
-        title="Adicionar registro"
-        visible={modalAdd}
-        onOk={() => {
-          setModalAdd(false);
-        }}
-        onCancel={() => setModalAdd(false)}
-        footer={false}
-      >
-        <Spin spinning={loading}>
-          <Form {...layout} form={formAdd} name="nest-messages" onFinish={onFinishAdd} validateMessages={validateMessages}>
-
-            <Form.Item name={['siglauf']} label="UF" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['ibge']} label="IBGE" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['anomes']} label="ANomes" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bas']} label="QtdBenBas" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_var']} label="QtdBenVar" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bvj']} label="QtdBenBvj" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bvn']} label="QtdBenBvn" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bvg']} label="QtdBenBvg" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bsp']} label="QtdBenBsp" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <br />
-            <br />
-            <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 10 }}>
-              <Button type="primary" htmlType="submit">
-                Adicionar
-              </Button>
-            </Form.Item>
-          </Form>
-        </Spin>
-      </Modal>
-
-      {/* Modal de edição registro */}
-      <Modal
-        title="Editar registro"
-        visible={modalEdit}
-        onOk={() => {
-          setModalEdit(false);
-        }}
-        onCancel={() => setModalEdit(false)}
-        footer={false}
-      >
-        <Spin spinning={loading}>
-          <Form {...layout} form={formEdit} name="nest-messages" onFinish={onFinishEdit} validateMessages={validateMessages}>
-
-            <Form.Item name={['siglauf']} label="UF" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['ibge']} label="IBGE" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['anomes']} label="ANomes" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bas']} label="QtdBenBas" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_var']} label="QtdBenVar" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bvj']} label="QtdBenBvj" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bvn']} label="QtdBenBvn" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bvg']} label="QtdBenBvg" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={['qtd_ben_bsp']} label="QtdBenBsp" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <br />
-            <br />
-            <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 10 }}>
-              <Button type="primary" htmlType="submit">
-                Atualizar
-              </Button>
-            </Form.Item>
-          </Form>
-        </Spin>
-      </Modal>
-
-      {/* Modal de vizualização de registro */}
-      <Modal
-        title="Vizualizar registro"
+        title="Detalhes do pokemon"
         visible={modalView}
         onOk={() => {
           setModalView(false);
         }}
-        onCancel={() => setModalView(false)}
+        onCancel={() => {
+          setModalView(false)
+        }}
       >
-        <p>UF: {item.siglauf}</p>
-        <p>IBGE: {item.ibge}</p>
-        <p>ANomes: {item.anomes}</p>
-        <p>QtdBenBas: {item.qtd_ben_bas}</p>
-        <p>QtdBenVar: {item.qtd_ben_var}</p>
-        <p>QtdBenBvj: {item.qtd_ben_bvj}</p>
-        <p>QtdBenBvn: {item.qtd_ben_bvn}</p>
-        <p>QtdBenBvg: {item.qtd_ben_bvg}</p>
-        <p>QtdBenBsp: {item.qtd_ben_bsp}</p>
+        {!pokemonDetail
+          ? (
+            <div className="load-spin">
+              <Spin />
+            </div>
+          ) : (
+            <>
+              <div className="head">
+
+                <p className={`title title-pokemon-${pokemonDetail.name}`}>{pokemonDetail.name}</p>
+
+                <Image
+                  width={200}
+                  src={pokemonDetail.sprites.other['official-artwork'].front_default}
+                />
+              </div>
+
+              <br />
+
+              <div>
+                <Descriptions
+                  bordered
+                  layout="vertical"
+                >
+                  <Descriptions.Item label="Abilities">
+                    {pokemonDetail.abilities.map((ability: any, index: number) => {
+                      return (
+                        <div key={index}>
+                          <p>{ability.ability.name}</p>
+                          <br />
+                        </div>
+                      )
+                    })}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Types">
+                    {pokemonDetail.types.map((type: any, index: number) => {
+                      return (
+                        <div key={index}>
+                          <p>{type.type.name}</p>
+                          <br />
+                        </div>
+                      )
+                    })}
+                  </Descriptions.Item>
+                </Descriptions>
+
+                <Divider></Divider>
+
+                <Descriptions
+                  bordered
+                  layout="vertical"
+                >
+                  <Descriptions.Item label="Base stats">
+                    {pokemonDetail.stats.map((stat: any, index: number) => {
+                      let percentage = (stat.base_stat * 100) / 260;
+
+                      return (
+                        <div key={index}>
+                          <Progress percent={percentage} format={() => {
+                            return stat.base_stat;
+                          }} />
+                          <p>{stat.stat.name}</p>
+                          <br />
+                        </div>
+                      )
+                    })}
+                  </Descriptions.Item>
+                </Descriptions>
+              </div>
+            </>
+          )}
       </Modal>
     </>
   );

@@ -1,5 +1,5 @@
 {
-  "name": "teste-john-deere",
+  "name": "teste-vr",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -13,6 +13,7 @@
     "antd": "^4.16.13",
     "axios": "^0.24.0",
     "node-sass": "4.14.1",
+    "puppeteer": "^12.0.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
@@ -24,7 +25,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "json-server ./misocial.json -w -d 750 -p 3300"
+    "server": "json-server ./misocial.json -w -d 750 -p 3300",
+    "e2e": "react-scripts test --testPathPattern=.*e2e.test.js$"
   },
   "eslintConfig": {
     "extends": [

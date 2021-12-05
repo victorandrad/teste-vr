@@ -1,7 +1,29 @@
 .container-lista {
     padding: 1rem;
-    
+
     .lista {
         border: none;
+    }
+}
+
+.load-spin {
+    margin: 20px 0;
+    margin-bottom: 20px;
+    padding: 30px 50px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.head {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .title {
+        display: flex;
+        width: 50%;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 500;
     }
 }
